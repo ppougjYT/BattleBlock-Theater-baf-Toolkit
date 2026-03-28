@@ -46,7 +46,6 @@ This packs the DDS files from `output/` back into a new BAF file named `AcidBubb
 ## Notes
 
 - The scripts assume DDS files are named sequentially starting from `_1.dds`.
-- All DDS files must be exactly 16512 bytes (as per the archive structure).
 - The packing script preserves the original archive structure and replaces file data.
 - If DDS file sizes don't match the expected sizes, a warning will be printed.
 - The output BAF file from packing will have the same compression and structure as the original.
