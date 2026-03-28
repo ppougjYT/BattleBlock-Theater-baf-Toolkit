@@ -28,40 +28,56 @@ def pack_archive(input_baf, dds_folder, output_baf):
 
     # Work on decompressed data
     mem = bytearray(decompressed)
-    offset = 0
 
     # Read file count
-    filenum = struct.unpack_from("<H", mem, offset)[0]
-    offset += 2
-
+    filenum = struct.unpack_from("<H", mem, 0)[0]
     print(f"filenum: {filenum}")
 
-    # Jump to 0x50
-    offset = 0x50
+    toc_start = 0x50
+    entry_size = 0x38  # each entry is 56 bytes: 8 bytes + 0x30 payload
 
+    entries = []
     for i in range(1, filenum + 1):
-        # Read entry
-        entry_size = struct.unpack_from("<I", mem, offset)[0]
-        offset += 4
+        entry_offset = toc_start + (i - 1) * entry_size
+        size = struct.unpack_from("<I", mem, entry_offset)[0]
+        file_offset = struct.unpack_from("<I", mem, entry_offset + 4)[0]
+        entries.append({
+            "index": i,
+            "entry_offset": entry_offset,
+            "size": size,
+            "file_offset": file_offset,
+        })
+        print(f"Entry {i}: orig_size {size}, orig_offset {file_offset}")
 
-        file_offset = struct.unpack_from("<I", mem, offset)[0]
-        offset += 4
-
-        print(f"Entry {i}: size {entry_size}, file_offset {file_offset}")
-
-        # Read the DDS file
+    # Keep original file offsets and sizes. Do in-place replacement only.
+    for e in entries:
+        i = e["index"]
         dds_file = os.path.join(dds_folder, f"_{i}.dds")
+
+        if not os.path.isfile(dds_file):
+            raise FileNotFoundError(f"Missing DDS file: {dds_file}")
+
         with open(dds_file, "rb") as df:
             dds_data = df.read()
 
-        if len(dds_data) != entry_size:
-            print(f"Warning: DDS file {dds_file} size {len(dds_data)} != expected {entry_size}")
+        required_size = e["size"]
+        cur_size = len(dds_data)
 
-        # Replace in mem
-        mem[file_offset:file_offset + entry_size] = dds_data
+        if cur_size < required_size:
+            print(
+                f"Entry {i}: DDS size {cur_size} < required {required_size}, padding with zeros"
+            )
+            dds_data = dds_data + b"\x00" * (required_size - cur_size)
+        elif cur_size > required_size:
+            print(
+                f"Entry {i}: DDS size {cur_size} > required {required_size}, truncating"
+            )
+            dds_data = dds_data[:required_size]
 
-        # Skip 0x30 bytes
-        offset += 0x30
+        file_offset = e["file_offset"]
+        print(f"Entry {i}: replacing at offset {file_offset}, size {required_size}")
+
+        mem[file_offset:file_offset + required_size] = dds_data
 
     # Now compress the modified mem
     compressed = zlib.compress(mem)
