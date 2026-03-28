@@ -1,6 +1,6 @@
 # BAF Archive Tools
 
-This repository contains Python scripts for extracting and packing BAF. BAF files are compressed archives used in some older games, such as those in the Infinity Engine series (e.g., Baldur's Gate).
+This repository contains Python scripts for extracting and packing BAF.
 
 ## Scripts
 
