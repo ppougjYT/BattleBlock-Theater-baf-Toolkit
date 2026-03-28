@@ -45,6 +45,7 @@ This packs the DDS files from `output/` back into a new BAF file named `AcidBubb
 
 ## Notes
 
+- Keep the edited DDS files the same size as the OG ones
 - The scripts assume DDS files are named sequentially starting from `_1.dds`.
 - The packing script preserves the original archive structure and replaces file data.
 - If DDS file sizes don't match the expected sizes, a warning will be printed.
