@@ -1,4 +1,4 @@
-# BAF Archive Tools
+# How To Use BAF Toolkit
 
 This repository contains Python scripts for extracting and packing BAF.
 
