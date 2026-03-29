@@ -57,7 +57,3 @@ This packs the DDS files from `output/` back into a new BAF file named `AcidBubb
 - Make sure the output folder exists or can be created.
 - For packing, ensure all required DDS files are present in the specified folder.
 - If you encounter permission errors, run the script with appropriate permissions or in a writable directory.
-
-## License
-
-These scripts are provided as-is for educational and archival purposes.
